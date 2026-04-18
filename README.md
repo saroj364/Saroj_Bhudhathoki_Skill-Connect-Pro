@@ -2,70 +2,82 @@
 
 ## Project Overview
 
-`Skill Connect Pro` is a full-stack marketplace platform for freelancers, learners, instructors, and administrators. It combines a Node.js + Express backend with MongoDB, and a React + Vite frontend using Tailwind CSS.
+`Skill Connect Pro` is a full-stack marketplace platform designed for:
+- freelancers,
+- learners,
+- instructors,
+- and administrators.
 
-The project contains three main areas:
+It uses a Node.js + Express backend with MongoDB for the API and data layer, and a React + Vite frontend with Tailwind CSS for the user interface.
 
-- `Backend/` - Express API server, authentication, MongoDB models, file uploads, socket support, and admin/user/course management.
-- `Frontend/` - React application built with Vite, routes for client/instructor/learner experiences, and UI components.
-- `Backend/AI/` - AI-related artifacts and scripts, including keyword detection models and dataset folders.
+## What this project includes
 
----
+- `Backend/` — Express API server, authentication, user/course management, notifications, payments, file uploads, and socket support.
+- `Frontend/` — React application built with Vite, page routing, user dashboards, and reusable UI components.
+- `Backend/AI/` — optional AI/data scripts and model artifacts for keyword detection and analysis.
 
-## Root Folder Structure
+## Project Features
 
-- `Backend/`
-  - `server.js` - main Express server entrypoint.
-  - `config/` - database connection logic.
-  - `controllers/` - request handlers for users, auth, courses, payments, blog, notifications, etc.
-  - `models/` - Mongoose schemas for users, courses, blogs, orders, messages, ratings, and more.
-  - `routes/` - REST API route definitions.
-  - `middleware/` - authentication and multipart handling.
-  - `scripts/` - helper scripts such as admin creation.
-  - `uploads/` - static file storage for course assets and uploads.
-  - `AI/` - experimental AI/data code, models, and datasets.
+- User authentication and role-based access
+- Course creation, enrollment, and management
+- Freelancer and instructor workflows
+- Blog and notification systems
+- Order and payment handling
+- Real-time communication support via Socket.IO
+- File uploads for courses and assets
+- Admin management utilities
 
-- `Frontend/`
-  - `src/` - React source code.
-  - `public/` - static public assets.
-  - `index.html` - Vite HTML entry.
-  - `package.json` - frontend dependencies and scripts.
-  - `tailwind.config.js` - Tailwind CSS settings.
-  - `vite.config.js` - Vite configuration.
+## Repository Structure
 
----
+### Backend
+- `server.js` — main Express server entry point
+- `config/` — MongoDB connection and configuration
+- `controllers/` — business logic and request handlers
+- `routes/` — API route definitions
+- `models/` — Mongoose schemas for users, courses, blogs, orders, messages, and more
+- `middleware/` — auth checks, file upload handling
+- `scripts/` — setup scripts (for example, `createAdmin.js`)
+- `uploads/` — course assets and uploaded files
+- `AI/` — AI-related scripts, model files, and data
+
+### Frontend
+- `src/` — React application source code
+- `public/` — static assets served by Vite
+- `index.html` — Vite HTML entry
+- `package.json` — frontend dependencies and scripts
+- `tailwind.config.js` — Tailwind CSS configuration
+- `vite.config.js` — Vite tooling configuration
 
 ## Technologies Used
 
-- Backend
-  - Node.js
-  - Express
-  - MongoDB / Mongoose
-  - CORS
-  - dotenv
-  - JSON Web Tokens (`jsonwebtoken`)
-  - bcryptjs
-  - multer
-  - socket.io
-  - uuid
-  - nodemon (development)
+### Backend
+- Node.js
+- Express
+- MongoDB / Mongoose
+- dotenv
+- bcryptjs
+- jsonwebtoken
+- multer
+- socket.io
+- cors
+- nodemon (development)
 
-- Frontend
-  - React
-  - Vite
-  - React Router DOM
-  - Tailwind CSS
-  - Axios
-  - socket.io-client
-  - uuid
+### Frontend
+- React
+- Vite
+- React Router DOM
+- Tailwind CSS
+- Axios
+- socket.io-client
+- uuid
 
-- AI / Data
-  - Python scripts in `Backend/AI/`
-  - keyword detection model artifacts (`.pth`)
+### AI / Data
+- Python scripts in `Backend/AI/`
+- PyTorch model artifacts (`.pth`)
 
----
+## Setup Instructions
 
-## Backend Setup
+### 1. Backend Setup
 
 1. Open a terminal in `Backend/`.
 2. Install dependencies:
@@ -75,11 +87,12 @@ cd Backend
 npm install
 ```
 
-3. Create a `.env` file in `Backend/` with at least:
+3. Create a `.env` file with the required variables:
 
 ```env
 MONGO_URI=your_mongodb_connection_string
 PORT=5000
+JWT_SECRET=your_jwt_secret
 ```
 
 4. Start the backend server:
@@ -88,17 +101,15 @@ PORT=5000
 npm run dev
 ```
 
-5. The API should be available on:
+5. Verify the API is running:
 
 ```text
 http://localhost:5000
 ```
 
-> Note: `server.js` also tries to listen on `PORT` from `.env` and falls back to `5001` if present.
+> If the backend port is unavailable, update `PORT` in `.env`.
 
----
-
-## Frontend Setup
+### 2. Frontend Setup
 
 1. Open a terminal in `Frontend/`.
 2. Install dependencies:
@@ -108,51 +119,69 @@ cd Frontend
 npm install
 ```
 
-3. Start the frontend development server:
+3. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open the application in the browser at the Vite URL, typically:
+4. Open the app in the browser at the Vite URL, usually:
 
 ```text
 http://localhost:5173
 ```
 
----
+## Running the Full Application
 
-## Running the Full App
+1. Start the backend first.
+2. Start the frontend second.
+3. Confirm the backend is connected to MongoDB using `MONGO_URI`.
+4. Use the frontend to interact with backend API routes.
 
-- Start the backend first.
-- Then start the frontend.
-- Ensure `MONGO_URI` is configured in `Backend/.env`.
-- The frontend will call backend API routes under `/api/...`.
+## Frontend / Backend Connection
 
----
+- The frontend communicates with the backend API through HTTP requests to the backend server.
+- The backend exposes REST endpoints for authentication, courses, orders, blogs, notifications, and more.
+- Socket.IO is also available for real-time events and chat-style functionality.
+- Make sure CORS is enabled in `Backend/server.js` if the frontend and backend run on different ports.
 
-## Additional Scripts
+## MongoDB Setup Guide
 
-From `Backend/`:
+1. Use MongoDB Atlas or a local MongoDB server.
+2. Create a database and get the connection string.
+3. Add the URI to `Backend/.env` as `MONGO_URI`.
+4. Example connection string for Atlas:
 
-- `npm run create-admin` - run `node scripts/createAdmin.js` to create an admin user.
+```env
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/skill-connect-pro?retryWrites=true&w=majority
+```
 
-From `Frontend/`:
+5. If using a local MongoDB instance:
 
-- `npm run build` - build the production frontend bundle.
-- `npm run preview` - preview the built frontend locally.
-- `npm run lint` - run ESLint checks.
+```env
+MONGO_URI=mongodb://localhost:27017/skill-connect-pro
+```
 
----
+## Important Commands
+
+### Backend
+- `npm run dev` — start backend with nodemon
+- `npm run create-admin` — create an admin user via script
+
+### Frontend
+- `npm run dev` — run the frontend development server
+- `npm run build` — build the production frontend
+- `npm run preview` — preview the built frontend
+- `npm run lint` — run ESLint checks
 
 ## Notes
 
-- The project currently appears to use a single MongoDB backend and a React UI.
-- If you want to store environment variables securely, do not commit `.env` to source control.
-- The `Backend/AI/` folder contains model files and data code for AI-related functionality; it is separate from the main app flow.
+- Do not commit `.env` to version control.
+- Keep backend and frontend servers running simultaneously during development.
+- The AI assets in `Backend/AI/` are separate from the main web application.
 
----
+## Next Steps
 
-## Contact
-
-If you want help integrating additional features like deployment, CI/CD, or production MongoDB configuration, I can help update the README further.
+- Add deployment instructions for production hosting.
+- Add detailed API docs for backend routes.
+- Add environment-specific frontend config if needed.
