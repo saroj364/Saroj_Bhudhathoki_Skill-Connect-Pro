@@ -2,6 +2,8 @@ const User = require('../models/userModel');
 const Course = require('../models/courseModel'); 
 const Notification = require('../models/notificationModel');
 const Order = require('../models/Order');
+const Job = require('../models/Job')
+const Modules = require('../models/modules');
 // @desc    Get all pending instructors
 // @route   GET /api/admin/pending-instructors
 // @access  Private/Admin
@@ -322,6 +324,51 @@ const getAllOrders = async ( req, res) =>{
     });
   }
 };
+
+const countGigs = async( req, res) =>{
+  try{
+   const result = await Job.aggregate([
+      {
+        $match: {
+          $or: [
+            { requestStatus: "accepted" },
+            { status: { $in: ["completed", "in-progress"] } }
+          ]
+        }
+      },
+      {
+        $count: "totalGigs"
+      }
+    ]);
+    const gigs = result.length > 0 ? result[0].totalGigs : 0;
+
+    res.status(200).json({
+      success: true,
+      data: gigs
+    });
+  }catch(error){
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to count gigs"
+    });
+  }
+}
+
+const getAllModules = async(req, res) =>{
+  try{
+    const module = await Modules.find({course_id: req.params.id}); 
+    res.status(200).json({
+      success: true,
+      data: module
+    });
+  }catch(error){
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch all modules"
+    });
+  }
+}
 module.exports = {
   getPendingInstructors,
   getPendingFreelancers,
@@ -336,6 +383,8 @@ module.exports = {
   getAllCourses,
   approveCourse,
   rejectCourse,
-  getAllOrders
+  getAllOrders,
+  countGigs,
+  getAllModules
 };
 

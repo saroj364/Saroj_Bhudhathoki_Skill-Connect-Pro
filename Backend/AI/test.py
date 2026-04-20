@@ -133,7 +133,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 for epoch in range(EPOCHS):
     model.train()
-    total_loss = 0
+    total_loss = 0      
     correct = 0
     total = 0
 

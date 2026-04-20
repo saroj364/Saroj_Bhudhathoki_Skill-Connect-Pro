@@ -16,7 +16,12 @@ export default function AdminCourses() {
   const API_URL = import.meta.env.VITE_API_URL;
   const BASE_URL = import.meta.env.VITE_BASE_URL; 
   const SOCKET_URL = import.meta.env.VITE_SOCKET_URL; 
+  const [modulePopupOpen, setModulePopupOpen] = useState(false);
+  const [modules, setModules] = useState([]);
+  const [loadingModules, setLoadingModules] = useState(false);
+  const [selectedCourse, setSelectedCourse ] = useState(false);
 
+  
   useEffect(() => {
     if ( !user || user.role !== 'admin') {
       navigate('/login');
@@ -93,6 +98,27 @@ export default function AdminCourses() {
       setExpandedCourse(courseId);
     }
   };
+  const viewModules = async (course) => {
+  try {
+    setSelectedCourse(course);
+    setLoadingModules(true);
+
+    const res = await axios.get(
+      `${API_URL}/admin/courses/module/${course._id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setModules(res.data.data || []);
+    setModulePopupOpen(true);
+  } catch (err) {
+    console.error(err);
+    error("Failed to load modules");
+  } finally {
+    setLoadingModules(false);
+  }
+};
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -228,6 +254,63 @@ export default function AdminCourses() {
                               <span className="font-semibold">Created:</span>{" "}
                               {new Date(course.createdAt).toLocaleDateString()}
                             </p>
+                            <button
+                              onClick={() => viewModules(course)}
+                              className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+                            >
+                              Modules
+                            </button>
+                            {modulePopupOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 relative">
+      
+      {/* Close Button */}
+      <button
+        onClick={() => setModulePopupOpen(false)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-black"
+      >
+        ✕
+      </button>
+
+      <h2 className="text-xl font-bold mb-4">
+        Modules - {selectedCourse?.title}
+      </h2>
+
+      {loadingModules ? (
+        <div className="text-center py-6">Loading modules...</div>
+      ) : modules.length === 0 ? (
+        <div className="text-center py-6 text-gray-500">
+          No modules found
+        </div>
+      ) : (
+        <div className="space-y-4 max-h-[400px] overflow-y-auto">
+          {modules.map((mod, index) => (
+            <div
+              key={mod._id}
+              className="border rounded-lg p-4 bg-gray-50"
+            >
+              <h3 className="font-semibold text-lg">
+                {index + 1}. {mod.title}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {mod.description}
+              </p>
+
+              {/* Optional: Lessons */}
+              {mod.lessons?.length > 0 && (
+                <ul className="mt-2 list-disc list-inside text-sm text-gray-700">
+                  {mod.lessons.map((lesson) => (
+                    <li key={lesson._id}>{lesson.title}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
                           </div>
                         </div>
                       </td>

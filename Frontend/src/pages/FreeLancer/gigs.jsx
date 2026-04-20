@@ -9,6 +9,15 @@ export default function FreelancerGigs() {
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedGig, setExpandedGig] = useState(null);
+  const [milestones, setMilestones ] = useState({}); 
+  const [showMilestoneForm, setShowMilestoneForm] = useState(null); 
+
+  const [milestoneData, setMilestoneData ] = useState({
+    title: "",
+    description: "",
+    amount: "",
+    deadline : ""
+  }); 
 
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -96,11 +105,51 @@ export default function FreelancerGigs() {
       error("Failed to complete");
     }
   };
+  const createMilestone = async (gigId) => {
+    try {
+      await axios.post(
+        `${API_URL}/milestones`,
+        {
+          ...milestoneData,
+          gigId,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
+      success("Milestone created");
+      setShowMilestoneForm(null);
+      setMilestoneData({
+        title: "",
+        description: "",
+        amount: "",
+        deadline: "",
+      });
+
+      fetchMilestones(gigId);
+    } catch {
+      error("Failed to create milestone");
+    }
+  };
+  const fetchMilestones = async (gigId) => {
+    try {
+      const res = await axios.get(`${API_URL}/milestones/${gigId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMilestones((prev) => ({
+        ...prev,
+        [gigId]: res.data.data,
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const toggleExpand = (id) => {
+    if (expandedGig !== id) {
+      fetchMilestones(id);
+    }
     setExpandedGig(expandedGig === id ? null : id);
   };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -264,10 +313,107 @@ export default function FreelancerGigs() {
                       <p className="text-gray-400 text-xs">
                         Created: {new Date(gig.createdAt).toLocaleDateString()}
                       </p>
-                    </div>
-                  )}
+                      <div className="mt-4">
+                        <h3 className="font-semibold text-gray-800 mb-2">Milestones</h3>
 
-                </div>
+                        {(milestones[gig._id] || []).length === 0 && (
+                          <p className="text-xs text-gray-400">No milestones yet</p>
+                        )}
+
+                        {(milestones[gig._id] || []).map((m) => (
+                          <div
+                            key={m._id}
+                            className="border rounded-lg p-3 mb-2 bg-gray-50"
+                          >
+                            <div className="flex justify-between">
+                              <h4 className="font-medium">{m.title}</h4>
+                              <span className="text-xs text-blue-600">{m.status}</span>
+                            </div>
+
+                            <p className="text-xs text-gray-500">{m.description}</p>
+
+                            <div className="text-xs mt-1 flex justify-between">
+                              <span>Rs {m.amount}</span>
+                              <span>
+                                {new Date(m.deadline).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+
+                        <button
+                          onClick={() => setShowMilestoneForm(gig._id)}
+                          className="mt-2 w-full bg-purple-600 text-white text-sm py-2 rounded-lg hover:bg-purple-700"
+                        >
+                          + Add Milestone
+                        </button>
+
+                        {showMilestoneForm === gig._id && (
+                          <div className="mt-3 space-y-2 bg-gray-100 p-3 rounded-lg">
+
+                            <input
+                              type="text"
+                              placeholder="Title"
+                              value={milestoneData.title}
+                              onChange={(e) =>
+                                setMilestoneData({ ...milestoneData, title: e.target.value })
+                              }
+                              className="w-full p-2 border rounded text-sm"
+                            />
+
+                            <input
+                              type="text"
+                              placeholder="Description"
+                              value={milestoneData.description}
+                              onChange={(e) =>
+                                setMilestoneData({ ...milestoneData, description: e.target.value })
+                              }
+                              className="w-full p-2 border rounded text-sm"
+                            />
+
+                            <input
+                              type="number"
+                              placeholder="Amount"
+                              value={milestoneData.amount}
+                              onChange={(e) =>
+                                setMilestoneData({ ...milestoneData, amount: e.target.value })
+                              }
+                              className="w-full p-2 border rounded text-sm"
+                            />
+
+                            <input
+                              type="date"
+                              value={milestoneData.deadline}
+                              onChange={(e) =>
+                                setMilestoneData({ ...milestoneData, deadline: e.target.value })
+                              }
+                              className="w-full p-2 border rounded text-sm"
+                            />
+
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => createMilestone(gig._id)}
+                                className="flex-1 bg-green-600 text-white py-2 rounded text-sm"
+                              >
+                                Save
+                              </button>
+
+                              <button
+                                onClick={() => setShowMilestoneForm(null)}
+                                className="flex-1 bg-gray-500 text-white py-2 rounded text-sm"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+     
+                    </div>
+                    
+                  )}
+                  
+           </div>
               );
             })}
           </div>

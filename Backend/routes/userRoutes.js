@@ -1,16 +1,16 @@
 const express = require('express');
-const { registerUser, loginUser, getUserProfile, getUserCourse, getFreelancers, getFreelancerById, createJob, getMessage, getChats, sendMessage, getCompletedJobs, openClassLearner} = require('../controllers/userController');
+const { registerUser, loginUser, getUserProfile, getUserCourse, getFreelancers, getFreelancerById, createJob, getMessage, getChats, sendMessage, getCompletedJobs, openClassLearner, sendPassChangeOTP, verifyOTP, resetPassword} = require('../controllers/userController');
 const { protect,clientOnly } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Register a new user
 router.post('/', registerUser);
 
-// Login user
 router.post('/login', loginUser);
+router.post('/forgot-password',sendPassChangeOTP);
+router.post('/otp-verify',verifyOTP);
+router.post('/reset-password',resetPassword);
 
-// Get user profile (protected route)
 router.get('/profile', protect, getUserProfile);
 router.get('/courses',protect,getUserCourse);
 
@@ -20,6 +20,8 @@ router.post('/freelancer/create',protect,clientOnly,createJob);
 
 router.get('/chat',protect,getChats);
 router.get('/client/job-track',protect,clientOnly,getCompletedJobs);
+
+
 
 router.get('/freelancer/:id',getFreelancerById);
 router.get('/chat/:id',protect,getMessage);

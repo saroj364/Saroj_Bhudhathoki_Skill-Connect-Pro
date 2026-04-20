@@ -6,7 +6,7 @@ const Cart = require('../models/cartModel');
 const Job = require('../models/Job');
 const User = require('../models/userModel');
 const JobPayment = require('../models/jobPayment');
-
+const Notification = require('../models/notificationModel');
 const generateEsewaSignature = (totalAmount, transactionUuid, productCode) => {
   const message = `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`;
   const secretKey = "8gBm/:&EnhH.1/q"; 

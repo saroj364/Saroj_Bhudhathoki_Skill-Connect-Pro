@@ -9,7 +9,8 @@ const Course = require('../models/courseModel');
 const Module = require('../models/modules');
 const JobPayment = require('../models/jobPayment');
 const ModuleProgress = require('../models/progress');
-const axios = require('axios');
+const transporter = require('../middleware/mail');
+const bcrypt = require('bcryptjs');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -262,7 +263,7 @@ const createJob = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.log(err);
     res.status(500).json({
       success: false,
       message: "Failed to create job"
@@ -447,8 +448,138 @@ const openClassLearner = async (req, res) => {
   }
 };
 
+const generateOTP = () =>{
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+const sendPassChangeOTP = async (req, res) => {
+  try{
+    const { email } = req.body ;
+    if (!email){
+      return res.status(400).json({
+        message: "Email is required"
+      });
+    }
+    const user = await User.findOne({email});
+    if (!user){
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+    const otp = generateOTP(); 
+    user.resetOTP = otp ; 
+    user.otpExpire = Date.now() + 5 * 60 * 1000; 
+    await user.save();
+    await transporter.sendMail({
+      from: '"Skill Connect Pro" <no-reply@sc.com>',
+      to: email,
+      subject: "Password Reset OTP ",
+      html: `
+        <h2>Reset Password</h2>
+        <p>Your OTP code is:</p>
+        <h1>${otp}</h1>
+        <p>This will expire in 5 minutes.</p>
+      `,
+    });
+    res.json({
+      success: true,
+      message: "OTP sent (check Mailtrap inbox)",
+    });
+  }catch(err){
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "OTP failed to send"
+    })
+  }
+}
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
 
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.otpExpire || user.otpExpire < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    if (user.resetOTP !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    user.isOTPVerified = true;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "OTP verification failed",
+    });
+  }
+};
+const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        message: "Email and new password are required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // OPTIONAL: check OTP verified flag (recommended)
+    // if (!user.isOTPVerified) {
+    //   return res.status(403).json({ message: "OTP not verified" });
+    // }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    user.resetOTP = null;
+    user.otpExpire = null;
+
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to reset password" });
+  }
+};
 
 module.exports = { registerUser, loginUser, getUserProfile, getUserCourse,
    getFreelancers, getFreelancerById,createJob ,getMessage,
-    getChats, sendMessage, getCompletedJobs, openClassLearner};
+    getChats, sendMessage, getCompletedJobs, openClassLearner, sendPassChangeOTP,
+  verifyOTP, resetPassword};

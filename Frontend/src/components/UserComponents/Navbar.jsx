@@ -208,9 +208,15 @@ const [isOpen, setIsOpen] = useState(false);
                         className="block px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"
                       >
                         <div className="flex items-center gap-2">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="24" height="24" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            stroke-width="2">
+                          <circle cx="12" cy="7" r="4"/>
+                          <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
+                        </svg>
                           Online Class
                         </div>
                       </Link>
@@ -280,9 +286,14 @@ const [isOpen, setIsOpen] = useState(false);
                         className="block px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"
                       >
                         <div className="flex items-center gap-2">
-                          {/* Chat Icon */}
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" />
+                           <svg xmlns="http://www.w3.org/2000/svg" 
+                              width="24" height="24" 
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              stroke-width="2">
+                            <circle cx="12" cy="7" r="4"/>
+                            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
                           </svg>
                           Online Class
                         </div>
@@ -295,7 +306,18 @@ const [isOpen, setIsOpen] = useState(false);
                         className="block px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-800 transition-colors"
                       >
                         <div className="flex items-center gap-2">
-                          
+                          <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="24" height="24" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            stroke-width="2" 
+                            stroke-linecap="round" 
+                            stroke-linejoin="round">
+                          <line x1="12" y1="20" x2="12" y2="10"/>
+                          <line x1="18" y1="20" x2="18" y2="4"/>
+                          <line x1="6" y1="20" x2="6" y2="16"/>
+                        </svg>
                           Jobs Track
                         </div>
                       </Link>

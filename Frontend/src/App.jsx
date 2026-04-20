@@ -41,6 +41,10 @@ import FreelanceProfile from "./pages/FreeLancer/profile";
 import OnlineClassesPage from "./pages/class/oclass";
 import CreateOnlineClass from "./pages/Instructor/class";
 import ClassRoom from "./pages/class/vcall";
+import AdminSystemSettings from "./pages/Admin/settings";
+import ForgotPassword from "./pages/Auth/Pass-reset";
+import ResetPassword from "./pages/Auth/update-pass";
+import VerifyOTP from "./pages/Auth/otp-verify";
 
 
 function App() {
@@ -85,6 +89,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/courses" element={<AdminCourses/>} />
             <Route path="/admin/all_users" element={<AdminUsers/>}/>
+            <Route path="/admin/settings" element={<AdminSystemSettings/>}/>
 
             <Route path="/freelancer/dashboard" element={<FreelancerDashboard/>}/>
             <Route path="/freelancer/chat" element={<FreelancerChatList/>}/>
@@ -97,7 +102,9 @@ function App() {
 
 
           <Route path="/class/:roomId" element={<ClassCall/>} />
-
+          <Route path="/forgot-password" element={<ForgotPassword/>}/>
+          <Route path="/reset-password" element={<ResetPassword/>}/>
+          <Route path="/otp-verify" element={<VerifyOTP/>}/>
         </Routes>
       </BrowserRouter>
     </ToastProvider>

@@ -141,9 +141,34 @@ module.exports = (io) => {
     socket.on("send-message-class", (msg) => {
       socket.to(msg.classId).emit("receive-message-class", msg);
     });
+socket.on("audio-stream", async ({ roomId, audio }) => {
+  try {
+    const response = await fetch("http://127.0.0.1:5002/audio-stream", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        audio: Buffer.from(audio).toString("base64")
+      })
+    });
 
+    if (response.status === 204) return;
 
-    // leave class
+    const text = await response.text();
+    if (!text) return;
+
+    const data = JSON.parse(text);
+    console.log(data);
+    if (data.keyword) {
+      io.to(roomId).emit("ai-keyword", data);
+    }
+
+  } catch (err) {
+    console.error("AI ERROR:", err);
+  }
+});
+        // leave class
     socket.on("leave-class", ({ classId, user }) => {
       socket.leave(classId);
 

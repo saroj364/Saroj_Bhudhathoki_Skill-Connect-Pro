@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [courses, setCourses] = useState(0);
   const [users, setUsers] = useState(0);
+  const [gigs, setGigs ] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -147,14 +148,16 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [courseRes, userRes] = await Promise.all([
+        const [courseRes, userRes, gigRes] = await Promise.all([
           axios.get(`${API_URL}/admin/courses/count`, config),
           axios.get(`${API_URL}/admin/users/count`, config),
+          axios.get(`${API_URL}/admin/gigs/count`,config),
         ]);
 
         if (courseRes.data.success)
           setCourses(courseRes.data.data);
-
+        if (gigRes.data.success)
+          setGigs(gigRes.data.data);
         if (userRes.data.success)
           setUsers(userRes.data.data);
       } catch (err) {
@@ -227,7 +230,7 @@ export default function AdminDashboard() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Gigs</p>
-                <p className="text-2xl font-semibold text-gray-900">0</p>
+                <p className="text-2xl font-semibold text-gray-900">{gigs}</p>
               </div>
             </div>
           </div>
@@ -276,7 +279,7 @@ export default function AdminDashboard() {
                 Approve, reject, or manage course submissions from instructors
               </p>
             </Link>
-            <button className="p-6 border-2 border-gray-200 rounded-lg hover:border-red-800 hover:bg-red-50 transition-all text-left group">
+            <Link to="/admin/settings" className="p-6 border-2 border-gray-200 rounded-lg hover:border-red-800 hover:bg-red-50 transition-all text-left group">
               <div className="flex items-center gap-4 mb-3">
                 <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
                   <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +290,7 @@ export default function AdminDashboard() {
                 <h3 className="font-semibold text-gray-900 text-lg">System Settings</h3>
               </div>
               <p className="text-sm text-gray-600">Configure platform settings, fees, and system preferences</p>
-            </button>
+            </Link>
           </div>
         </div>
 

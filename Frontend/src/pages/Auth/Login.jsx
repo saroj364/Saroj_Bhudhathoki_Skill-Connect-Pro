@@ -180,7 +180,7 @@ export default function Login() {
 
               {/* Forgot Password */}
               <div className="flex items-center justify-end">
-                <a href="#" className="text-sm font-semibold text-red-800 hover:text-red-900 transition-colors">
+                <a href="/forgot-password" className="text-sm font-semibold text-red-800 hover:text-red-900 transition-colors">
                   Forgot password?
                 </a>
               </div>

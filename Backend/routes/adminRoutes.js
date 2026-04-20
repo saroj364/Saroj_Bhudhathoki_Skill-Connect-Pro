@@ -15,7 +15,9 @@ const {
   getAllCourses,
   approveCourse,
   rejectCourse,
-  getAllOrders
+  getAllOrders,
+  countGigs,
+  getAllModules
 } = require('../controllers/adminController');
 
 // All routes are protected and admin-only
@@ -23,6 +25,9 @@ router.get('/pending-instructors', protect, adminOnly, getPendingInstructors);
 router.get('/pending-freelancers', protect, adminOnly, getPendingFreelancers);
 router.get('/users', protect, adminOnly, getAllUsers);
 router.get('/users/count',protect,adminOnly,countUsers);
+router.get('/gigs/count',protect,adminOnly, countGigs);
+router.get('/courses/module/:id',protect,adminOnly, getAllModules);
+
 router.route('/courses/count').get(countCourses);
 
 router.get('/courses',protect,adminOnly,getAllCourses); 

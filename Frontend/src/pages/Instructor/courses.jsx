@@ -21,6 +21,7 @@ export default function InstructorCourses() {
   const [modules, setModules] = useState([]);
   const [loadingModules, setLoadingModules] = useState(false);
 
+
   useEffect(() => {
     fetchInstructorCourses();
   }, []);

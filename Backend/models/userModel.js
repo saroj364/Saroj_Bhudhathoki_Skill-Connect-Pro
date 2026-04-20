@@ -136,6 +136,14 @@
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       default: null
+    },
+    resetOTP: {
+      type: String ,
+      default: null
+    },
+    otpExpire: {
+      type: Date,
+      default: null,
     }
 
   }, {

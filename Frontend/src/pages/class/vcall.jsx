@@ -33,7 +33,11 @@ export default function ClassCall() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
-          audio: true,
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
         });
         streamRef.current = stream;
         localVideo.current.srcObject = stream;
@@ -101,7 +105,47 @@ export default function ClassCall() {
           pcRef.current?.close();
           navigate("/");
         });
+    const audioStream = new MediaStream(stream.getAudioTracks());
 
+let options = {};
+if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+  options.mimeType = "audio/webm;codecs=opus";
+}
+
+const mediaRecorder = new MediaRecorder(audioStream, options);
+
+let chunks = [];
+
+mediaRecorder.ondataavailable = (e) => {
+  if (e.data.size > 0) {
+    chunks.push(e.data);
+  }
+};
+
+mediaRecorder.onerror = (e) => {
+  console.error("Recorder error:", e);
+};
+
+mediaRecorder.onstop = async () => {
+  const blob = new Blob(chunks, { type: "audio/webm" });
+  const buffer = await blob.arrayBuffer();
+
+  socketRef.current.emit("audio-stream", {
+    roomId,
+    audio: Array.from(new Uint8Array(buffer))
+  });
+
+  chunks = [];
+};
+
+mediaRecorder.start();
+
+const interval = setInterval(() => {
+  if (mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+    mediaRecorder.start();
+  }
+}, 1500);
       } catch (err) {
         console.error("Failed to start call:", err);
         alert("Failed to access camera/mic");
@@ -162,6 +206,9 @@ export default function ClassCall() {
     socketRef.current.on("stop-typing", (userId) => {
       setTypingUsers((prev) => prev.filter((id) => id !== userId));
     });
+    socketRef.current.on("ai-keyword", (data) => {
+      console.log("AI EVENT RECEIVED:", data);
+    });
 
     return () => {
       socketRef.current.emit("leave-class", { roomId, user });
@@ -171,7 +218,44 @@ export default function ClassCall() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+// MUST be outside useEffect (top level of component)
+const shownKeywordsRef = useRef({});
 
+useEffect(() => {
+  const socket = socketRef.current;
+  if (!socket) return;
+
+  const handleAIKeyword = (data) => {
+    if (!data?.keyword) return;
+
+    const keyword = data.keyword;
+    const now = Date.now();
+
+    if (
+      shownKeywordsRef.current[keyword] &&
+      now - shownKeywordsRef.current[keyword] < 10000
+    ) {
+      return;
+    }
+
+    shownKeywordsRef.current[keyword] = now;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "AI",
+        message: `${keyword.toUpperCase()} - ${data.description} (${data.source})`,
+        type: "ai",
+      },
+    ]);
+  };
+
+  socket.on("ai-keyword", handleAIKeyword);
+
+  return () => {
+    socket.off("ai-keyword", handleAIKeyword);
+  };
+}, []);
   const sendMessage = () => {
     if (!text.trim()) return;
 
@@ -231,6 +315,7 @@ export default function ClassCall() {
       console.error("Failed to end class:", err);
     }
   };
+
   return (
      <div className="h-screen flex bg-gray-900">
       <div className="flex-1 flex flex-col">
